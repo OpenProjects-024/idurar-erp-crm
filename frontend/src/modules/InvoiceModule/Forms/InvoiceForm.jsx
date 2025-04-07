@@ -47,8 +47,8 @@ function LoadInvoiceForm({ subTotal = 0, current = null }) {
   };
 
   const generateGeminiSummary = async () => {
-    const apiUrl = 'https://router.huggingface.co/fireworks-ai/v1/chat/completions';
-      const apiKey = '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';
+    const apiUrl = 'url'; // Replace with your actual API URL
+      const apiKey = 'API_KEY'; // Replace with your actual API key
 
     const data = {
       model: 'accounts/perplexity/models/r1-1776',
