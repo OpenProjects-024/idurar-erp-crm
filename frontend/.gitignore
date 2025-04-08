@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+node_modules/
 
 # testing
 /coverage
@@ -13,12 +14,18 @@
 
 # misc
 .DS_Store
+.idea
+notes.md
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-npm-debug.log*
+.env
+.env.development.locall
+npm-debug.log*.local
 yarn-debug.log*
 yarn-error.log*
+*.zipnpm-debug.log*
+
+
+yarn-debug.log*
+yarn-error.log*
+*.zip
 

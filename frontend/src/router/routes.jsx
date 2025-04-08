@@ -1,3 +1,4 @@
+import QueryManagement from '@/pages/QueryManagement';
 import { lazy } from 'react';
 
 import { Navigate } from 'react-router-dom';
@@ -127,6 +128,11 @@ let routes = {
       path: '*',
       element: <NotFound />,
     },
+    {
+      path: '/query',
+      element: <QueryManagement />,
+    },
+
   ],
 };
 
