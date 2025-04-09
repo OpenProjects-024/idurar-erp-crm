@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Form, Input, InputNumber, Row, Col } from 'antd';
-
 import { DeleteOutlined } from '@ant-design/icons';
-import { useMoney, useDate } from '@/settings';
+import { useMoney } from '@/settings';
 import calculate from '@/utils/calculate';
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({ apiKey: "AIzaSyAGDdn6c8CTSuFlK9b2nXJXrNAdpGRfWYU" });
 
 export default function ItemRow({ field, remove, current = null }) {
   const [totalState, setTotal] = useState(undefined);
@@ -18,13 +20,39 @@ export default function ItemRow({ field, remove, current = null }) {
     setPrice(value);
   };
 
+  const handleItemNameChange = async (e) => {
+    const itemValue = e.target.value;
+    console.log("Item Value:", itemValue);
+    
+    if (itemValue && itemValue.trim() !== '') {
+      try {
+        const response = await ai.models.generateContent({
+          contents: itemValue,
+          parameters: {
+            maxOutputTokens: 100,
+            temperature: 0.7,
+            topP: 0.9,
+            topK: 40,
+            stopSequences: ["\n"],
+          },
+          userId: "user-id",
+          userAgent: "user-agent",
+          userCountry: "IN",  
+        });
+        console.log("AI Response:", response.text);
+        
+        const resultContainer = document.getElementById('gemini-api-result');
+        if (resultContainer) {
+          resultContainer.innerHTML = `<p style='padding: 10px; background: #f0f0f0; border-radius: 5px;'>${response.text}</p>`;
+        }
+      } catch (error) {
+        console.error("Error with AI:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     if (current) {
-      // When it accesses the /payment/ endpoint,
-      // it receives an invoice.item instead of just item
-      // and breaks the code, but now we can check if items exists,
-      // and if it doesn't we can access invoice.items.
-
       const { items, invoice } = current;
 
       if (invoice) {
@@ -60,14 +88,13 @@ export default function ItemRow({ field, remove, current = null }) {
             {
               required: true,
               message: 'Missing itemName name',
-            },
-            {
-              pattern: /^(?!\s*$)[\s\S]+$/, // Regular expression to allow spaces, alphanumeric, and special characters, but not just spaces
-              message: 'Item Name must contain alphanumeric or special characters',
-            },
+            }
           ]}
         >
-          <Input placeholder="Item Name" />
+          <Input 
+            placeholder="Item Name" 
+            onChange={handleItemNameChange}
+          />
         </Form.Item>
       </Col>
       <Col className="gutter-row" span={7}>

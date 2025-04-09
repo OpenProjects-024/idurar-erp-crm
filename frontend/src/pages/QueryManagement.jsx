@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import AutoCompleteAsync from '@/components/AutoCompleteAsync';
 // import "../../style/table.css";
-
 
 const API_BASE_URL = "http://localhost:8888/api/queries";
 
@@ -13,17 +13,29 @@ const QueryManagement = () => {
   const [totalQueries, setTotalQueries] = useState(0);
   const [notes, setNotes] = useState({});
   const [newNotes, setNewNotes] = useState({});
+  const [customers, setCustomers] = useState([]);
 
   useEffect(() => {
     fetchQueries();
+    fetchCustomers();
   }, [page]);
 
   const fetchQueries = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}?page=${page}&limit=${limit}`);
-      setQueries(Array.isArray(res.data) ? res.data : []);
+      const res = await axios.get(`${API_BASE_URL}/list?page=${page}&limit=${limit}`);
+      setQueries(Array.isArray(res.data.result) ? res.data.result : []);
+      setTotalQueries(res.data.pagination.count || 0); // Update totalQueries from the response
     } catch (error) {
       console.error("Error fetching queries:", error);
+    }
+  };
+
+  const fetchCustomers = async () => {
+    try {
+      const res = await axios.get("http://localhost:8888/api/client");
+      setCustomers(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Error fetching customers:", error);
     }
   };
 
@@ -83,11 +95,15 @@ const QueryManagement = () => {
       <h2>Query Management</h2>
 
       <div className="query-form">
-        <input
-          type="text"
-          placeholder="Customer Name"
+        <AutoCompleteAsync
+          entity={'client'}
+          displayLabels={['name']}
+          searchFields={'name'}
+          redirectLabel={'Add New Customer'}
+          withRedirect
+          urlToRedirect={'/customer'}
           value={newQuery.customerName}
-          onChange={(e) => setNewQuery({ ...newQuery, customerName: e.target.value })}
+          onChange={(value) => setNewQuery({ ...newQuery, customerName: value })}
         />
         <input
           type="text"

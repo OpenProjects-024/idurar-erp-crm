@@ -19,6 +19,38 @@ import calculate from '@/utils/calculate';
 import { useSelector } from 'react-redux';
 import SelectAsync from '@/components/SelectAsync';
 
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({ apiKey: "YOUR_API_KEY" });
+
+async function triggerGeminiAPI() {
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: "Generate a list of items with their prices and descriptions.",
+      parameters: {
+        maxOutputTokens: 100,
+        temperature: 0.7,
+        topP: 0.9,
+        topK: 40,
+        stopSequences: ["\n"],
+      },
+      userId: "user-id",
+      userAgent: "user-agent",
+      userCountry: "IN",  
+    });
+    console.log(response.text);
+
+    // Display the result in a better way below the button
+    const resultContainer = document.getElementById('gemini-api-result');
+    if (resultContainer) {
+      resultContainer.innerHTML = `<p style='padding: 10px; background: #f0f0f0; border-radius: 5px;'>${response.text}</p>`;
+    }
+  } catch (error) {
+    console.error("Error triggering Gemini API:", error);
+  } 
+}
+
 export default function InvoiceForm({ subTotal = 0, current = null }) {
   const { last_invoice_number } = useSelector(selectFinanceSettings);
 
@@ -203,9 +235,14 @@ function LoadInvoiceForm({ subTotal = 0, current = null }) {
                 block
                 icon={<PlusOutlined />}
                 ref={addField}
-              >
+              > 
                 {translate('Add field')}
               </Button>
+              {/* Consolidated Gemini API Trigger Button */}
+              <Button type="primary" onClick={triggerGeminiAPI} style={{ marginLeft: '16px', marginTop: '23px' }}>
+                {translate('Trigger Gemini API')}
+              </Button>
+              <div id="gemini-api-result" style={{ marginTop: '16px' }}></div>
             </Form.Item>
           </>
         )}
